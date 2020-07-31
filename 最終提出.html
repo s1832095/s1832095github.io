@@ -1,0 +1,112 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+    <script src="OrbitControls.js"></script>
+    <script>
+      // ページの読み込みを待つ
+      window.addEventListener('load', init);
+
+      function init() {
+        // サイズを指定
+        const width = 960;
+        const height = 540;
+
+        // レンダラーを作成
+        const renderer = new THREE.WebGLRenderer({
+          canvas: document.querySelector('#myCanvas')
+        });
+        renderer.setSize(width, height);
+        renderer.setClearColor(0xafeeee, 1.0);
+
+
+        // シーンを作成
+        const scene = new THREE.Scene();
+
+        // フォグを設定
+        scene.fog = new THREE.Fog(0x555555, 50, 2000);
+
+        // カメラを作成
+        const camera = new THREE.PerspectiveCamera(45, width / height);
+        // カメラの初期座標を設定
+        camera.position.set(0, 1000, 0);
+
+        // カメラコントローラーを作成
+        const controls = new THREE.OrbitControls(camera);
+        controls.autoRotate = true;
+
+        // helper
+//        const gridHelper = new THREE.GridHelper(1000,20); // size, step
+//        scene.add(gridHelper);
+//        const axisHelper = new THREE.AxisHelper(1000); //軸の長さ　X：赤、Y：緑、z：青
+//        scene.add(axisHelper);
+	
+	// texture作成
+        var textureLoader = new THREE.TextureLoader();
+        var giatexture = textureLoader.load("img/gia.png");
+
+	// 平面（ポリゴン）を作成
+        var giageometry = new THREE.PlaneGeometry(200,200);
+        var giamat = new THREE.MeshBasicMaterial({transparent:true});
+        giamat.map= giatexture;
+	var giaplane = new THREE.Mesh( giageometry, giamat );
+        giaplane.position.set(0,0, 0);
+        scene.add( giaplane );
+
+        // 箱を作成(原点に作成)
+//        var geometry = new THREE.BoxGeometry(300, 300, 300);
+//        var material = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+//        var box = new THREE.Mesh(geometry, material);
+//        scene.add(box);
+
+
+	
+	// グループを作成
+        const group = new THREE.Group();
+        scene.add(group);
+	const geometry = new THREE.TorusGeometry(50, 20, 5, 10);
+        //const geometry = new THREE.BoxBufferGeometry(50, 50, 50);
+        const material = new THREE.MeshPhongMaterial({ color: 0xffb5ff});
+
+
+        for (let i = 0; i < 500; i++) {
+          const mesh = new THREE.Mesh(geometry, material);
+          mesh.position.x = (Math.random() - 0.5) * 2000;
+          mesh.position.y = (Math.random() - 1) * 2000;
+          mesh.position.z = (Math.random() - 0.5) * 2000;
+          mesh.rotation.x = Math.random() * 2 * Math.PI;
+          mesh.rotation.y = Math.random() * 2 * Math.PI;
+          mesh.rotation.z = Math.random() * 2 * Math.PI;
+          // グループに格納する
+          group.add(mesh);
+        }
+
+     
+      　 // 光源（環境光）
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        // 平行光源
+        var directionalLight1 = new THREE.DirectionalLight(0xffffff,1);
+        directionalLight1.position.set(0, 500, 0);
+        // シーンに追加
+        scene.add(directionalLight1);
+        
+
+        tick();
+
+        // 毎フレーム時に実行されるループイベントです
+        function tick() {
+          // レンダリング
+          group.rotateY(0.01);
+          renderer.render(scene, camera);
+	giaplane.rotation.setFromRotationMatrix(camera.matrix);
+          requestAnimationFrame(tick);
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <canvas id="myCanvas"></canvas>
+  </body>
+</html>
